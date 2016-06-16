@@ -1,0 +1,13 @@
+#!/bin/bash
+# run with no args to get all containers
+# or specify your containers
+# whatev
+if [ $UID != 0 ] ; then
+  sudo $0 $@
+  exit $?
+fi
+cons=$( [ $# -gt 0 ] && echo $@ || lxc-ls --running )
+for con in $cons ; do
+  echo -n "$con "
+  echo $( lxc-attach -n $con -- sh -c 'ifconfig | grep inet\ addr' | awk '{print $2}' | cut -d: -f2 | grep -vF '127.0.0.1' )
+done
